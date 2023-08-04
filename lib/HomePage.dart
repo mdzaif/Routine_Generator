@@ -337,7 +337,6 @@ class _HomePageState extends State<HomePage> {
                           context,
                           MaterialPageRoute(
                               builder: (context) => const Generate()),
-                          //SecondRoute
                         );
                       },
                       child: const Text('Generate')),
