@@ -31,6 +31,7 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
+  bool _isLoading = false;
 
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -45,9 +46,9 @@ class _LoginPageState extends State<LoginPage>
     _animationController.repeat(reverse: true);
   }
 
-  // show sign in result
-
+  // Show sign in result dialog
   void _showLoginResultDialog(bool success) {
+    Navigator.pop(context); // Close loading dialog
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -75,13 +76,40 @@ class _LoginPageState extends State<LoginPage>
     );
   }
 
+  // Handle sign in process
+  Future<void> _handleSignIn() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    await FirebaseFirestore.instance
+        .collection('Admin')
+        .doc('wuxCQENIybJB5JCPR98V')
+        .get()
+        .then((element) {
+      if (element.data()?['username'] == _usernameController.text &&
+          element.data()?['password'] == _passwordController.text) {
+        _showLoginResultDialog(true);
+      } else {
+        _showLoginResultDialog(false);
+      }
+    }).catchError((error) {
+      print("Error: $error");
+      _showLoginResultDialog(false);
+    });
+
+    setState(() {
+      _isLoading = false;
+    });
+  }
+
   @override
   void dispose() {
     _animationController.dispose();
     super.dispose();
   }
 
-  //design for Sign in page start here
+  // Design for Sign in page
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -135,28 +163,15 @@ class _LoginPageState extends State<LoginPage>
                   obscureText: true,
                 ),
               ),
-              // firebase checking with sign in data
               const SizedBox(height: 20.0),
               ElevatedButton(
-                onPressed: () async {
-                  //final FirebaseAuth _auth = FirebaseAuth.instance;
-
-                  await FirebaseFirestore.instance
-                      .collection('Admin')
-                      .doc('wuxCQENIybJB5JCPR98V')
-                      .snapshots()
-                      .forEach((element) {
-                    if (element.data()?['username'] ==
-                            _usernameController.text &&
-                        element.data()?['password'] ==
-                            _passwordController.text) {
-                      _showLoginResultDialog(true);
-                    } else {
-                      _showLoginResultDialog(false);
-                    }
-                  });
-                },
-                child: const Text('Sign in'),
+                onPressed: _isLoading ? null : _handleSignIn,
+                child: _isLoading
+                    ? CircularProgressIndicator(
+                        //strokeWidth: 4.5,
+                        //semanticsLabel: 'Signning in...',
+                        ) // Show loading indicator
+                    : const Text('Sign in'),
               ),
             ],
           ),

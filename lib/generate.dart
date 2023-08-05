@@ -73,17 +73,32 @@ class _Generate extends State<Generate> {
   @override
   Widget build(BuildContext context) {
     //generate();
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Routine Generator'),
-        centerTitle: true,
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Routine Generator',
+      theme: ThemeData(
+        brightness: Brightness.dark, // Enable dark mode
+        primarySwatch: Colors.blue,
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            for (String dataLine in generatedData) Text(dataLine),
-          ],
+      home: SafeArea(
+        top: true,
+        bottom: true,
+        child: Scaffold(
+          appBar: AppBar(
+            leading: const BackButton(
+              color: Colors.white,
+            ),
+            title: Text('Routine Generator'),
+            centerTitle: true,
+          ),
+          body: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                for (String dataLine in generatedData) Text(dataLine),
+              ],
+            ),
+          ),
         ),
       ),
     );
